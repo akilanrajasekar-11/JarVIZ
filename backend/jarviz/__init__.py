@@ -1,0 +1,3 @@
+"""
+JarVIZ package init
+"""

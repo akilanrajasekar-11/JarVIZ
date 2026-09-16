@@ -1,0 +1,12 @@
+[
+  {"model": "cameras.camera", "pk": 1, "fields": {"name": "CAM-01", "location_block": "BLOCK_1", "coverage_description": "Library Entrance", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 2, "fields": {"name": "CAM-02", "location_block": "BLOCK_1", "coverage_description": "Library Corridor", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 3, "fields": {"name": "CAM-03", "location_block": "BLOCK_1", "coverage_description": "Block 1 Entrance", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 4, "fields": {"name": "CAM-04", "location_block": "BLOCK_2", "coverage_description": "Lab Corridor", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 5, "fields": {"name": "CAM-05", "location_block": "BLOCK_2", "coverage_description": "Laboratory Entrance", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 6, "fields": {"name": "CAM-06", "location_block": "BLOCK_2", "coverage_description": "Block 2 Entrance", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 7, "fields": {"name": "CAM-07", "location_block": "HOSTEL_A", "coverage_description": "Main Entrance", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 8, "fields": {"name": "CAM-08", "location_block": "HOSTEL_A", "coverage_description": "Common Area", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 9, "fields": {"name": "CAM-09", "location_block": "MAIN_GATE", "coverage_description": "Entry Gate", "status": "ONLINE", "rtsp_url": ""}},
+  {"model": "cameras.camera", "pk": 10, "fields": {"name": "CAM-10", "location_block": "MAIN_GATE", "coverage_description": "Parking Area", "status": "ONLINE", "rtsp_url": ""}}
+]

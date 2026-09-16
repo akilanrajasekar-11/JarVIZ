@@ -1,0 +1,93 @@
+[
+  {
+    "model": "resources.resource",
+    "pk": 1,
+    "fields": {
+      "name": "Medical Response Unit Alpha",
+      "resource_type": "MEDICAL",
+      "capabilities": ["medical"],
+      "location": "HEALTH_CENTRE",
+      "status": "AVAILABLE",
+      "contact": "ext-201",
+      "notes": "First aid + advanced life support"
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 2,
+    "fields": {
+      "name": "Medical Response Unit Beta",
+      "resource_type": "MEDICAL",
+      "capabilities": ["medical"],
+      "location": "HEALTH_CENTRE",
+      "status": "AVAILABLE",
+      "contact": "ext-202",
+      "notes": ""
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 3,
+    "fields": {
+      "name": "Fire Response Team",
+      "resource_type": "FIRE",
+      "capabilities": ["fire", "medical", "security"],
+      "location": "SECURITY_ROOM",
+      "status": "AVAILABLE",
+      "contact": "ext-101",
+      "notes": "Fire extinguisher, hose reel, rescue equipment"
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 4,
+    "fields": {
+      "name": "Hazmat / EHS Team",
+      "resource_type": "HAZMAT",
+      "capabilities": ["hazmat", "medical", "isolation", "security"],
+      "location": "BLOCK_2",
+      "status": "AVAILABLE",
+      "contact": "ext-301",
+      "notes": "Chemical spill kits, PPE, decontamination equipment"
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 5,
+    "fields": {
+      "name": "Campus Security Patrol Alpha",
+      "resource_type": "SECURITY",
+      "capabilities": ["security", "isolation"],
+      "location": "MAIN_GATE",
+      "status": "AVAILABLE",
+      "contact": "ext-401",
+      "notes": ""
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 6,
+    "fields": {
+      "name": "Campus Security Patrol Beta",
+      "resource_type": "SECURITY",
+      "capabilities": ["security", "isolation"],
+      "location": "SECURITY_ROOM",
+      "status": "AVAILABLE",
+      "contact": "ext-402",
+      "notes": ""
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 7,
+    "fields": {
+      "name": "Facilities Maintenance Team",
+      "resource_type": "FACILITIES",
+      "capabilities": ["facilities", "security"],
+      "location": "SUBSTATION",
+      "status": "AVAILABLE",
+      "contact": "ext-501",
+      "notes": "Electrical, plumbing, structural repairs"
+    }
+  }
+]
