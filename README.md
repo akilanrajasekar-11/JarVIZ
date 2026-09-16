@@ -350,8 +350,8 @@ The complete timeline is retained for post-incident analysis.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/jarviz.git
-cd jarviz
+git clone https://github.com/akilanrajasekar-11/JarVIZ.git
+cd JarVIZ
 ```
 
 ### 2. Backend setup
