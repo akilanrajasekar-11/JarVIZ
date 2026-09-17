@@ -1,0 +1,119 @@
+[
+  {
+    "incident_id": "INC-001",
+    "incident_type": "FIRE_SMOKE",
+    "location": "BLOCK_2",
+    "priority": "P0",
+    "risk_score": 94.5,
+    "spread_potential": "HIGH",
+    "people_exposed": 18,
+    "required_capabilities": [
+      "fire",
+      "hazmat",
+      "medical",
+      "isolation"
+    ],
+    "ai_summary": "Active structural laboratory fire on the 3rd floor of Block 2. Dense smoke venting through HVAC ducts with flammable solvent cabinets in immediate proximity. Several students reported inhaling fumes during evacuation.",
+    "severity_factors": [
+      "Occupied laboratory during chemical synthesis",
+      "Dense acrid black smoke venting into corridor",
+      "Flammable solvent storage cabinets in adjacent room 305",
+      "Building fire suppression alarms actively sounding"
+    ],
+    "status": "CLOSED"
+  },
+  {
+    "incident_id": "INC-002",
+    "incident_type": "CHEMICAL",
+    "location": "BLOCK_2",
+    "priority": "P1",
+    "risk_score": 81.5,
+    "spread_potential": "MEDIUM",
+    "people_exposed": 6,
+    "required_capabilities": [
+      "hazmat",
+      "isolation"
+    ],
+    "ai_summary": "Hazardous chemical spill involving concentrated organic solvent and acid drums at the rear delivery bay of Block 2. Two loading technicians exposed to vapor. Immediate EHS containment and perimeter cordon recommended.",
+    "severity_factors": [
+      "55-gallon solvent drum puncture during pallet transfer",
+      "Pungent corrosive vapor cloud forming in covered loading bay",
+      "Enclosed transfer space with restricted ventilation"
+    ],
+    "status": "CLOSED"
+  },
+  {
+    "incident_id": "INC-003",
+    "incident_type": "ELECTRICAL",
+    "location": "SUBSTATION",
+    "priority": "P2",
+    "risk_score": 66.0,
+    "spread_potential": "LOW",
+    "people_exposed": 4,
+    "required_capabilities": [
+      "facilities",
+      "security"
+    ],
+    "ai_summary": "High-voltage electrical fault and continuous arcing at substation TX-2. Transformer temperature telemetry elevated. Critical infrastructure risk to campus servers.",
+    "severity_factors": [
+      "Continuous electric arcing and loud buzzing at 11kV busbar",
+      "Threat of campus-wide secondary power grid failure",
+      "Proximity to Block 4 Computer Science Server Facility"
+    ],
+    "status": "RESOLVED"
+  },
+  {
+    "incident_id": "INC-004",
+    "incident_type": "MEDICAL",
+    "location": "CAFETERIA",
+    "priority": "P2",
+    "risk_score": 58.0,
+    "spread_potential": "NONE",
+    "people_exposed": 1,
+    "required_capabilities": [
+      "medical"
+    ],
+    "ai_summary": "Student collapsed in central dining hall due to acute food allergen reaction. Labored breathing and swelling reported. Paramedic rapid response deployed.",
+    "severity_factors": [
+      "Acute anaphylactic shock symptoms with respiratory distress",
+      "High crowd density creating visual panic",
+      "Time-critical medical intervention required"
+    ],
+    "status": "RESOLVED"
+  },
+  {
+    "incident_id": "INC-005",
+    "incident_type": "SECURITY_THREAT",
+    "location": "MAIN_GATE",
+    "priority": "P3",
+    "risk_score": 38.0,
+    "spread_potential": "LOW",
+    "people_exposed": 5,
+    "required_capabilities": [
+      "security"
+    ],
+    "ai_summary": "Perimeter barrier bypass at Main Gate. Unregistered vehicle entered western lot without credentials. Gate guard requests secondary security intercept.",
+    "severity_factors": [
+      "Unregistered black SUV bypassed security boom barrier",
+      "Driver refused vehicle inspection and entered student parking lot"
+    ],
+    "status": "RESOLVED"
+  },
+  {
+    "incident_id": "INC-006",
+    "incident_type": "VIOLENCE_CROWD",
+    "location": "AUDITORIUM",
+    "priority": "P3",
+    "risk_score": 24.0,
+    "spread_potential": "LOW",
+    "people_exposed": 30,
+    "required_capabilities": [
+      "security"
+    ],
+    "ai_summary": "Mild crowd surge and queuing dispute in front of auditorium ticketing foyer. Security patrol deployed and restored orderly queue.",
+    "severity_factors": [
+      "Overcrowding and pushing near auditorium doors ahead of guest lecture"
+    ],
+    "status": "CLOSED"
+  }
+]

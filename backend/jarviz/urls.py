@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/', include('incidents.urls')),
     path('api/', include('cameras.urls')),
     path('api/', include('resources.urls')),
+    path('api/', include('analytics.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

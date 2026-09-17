@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'risk_engine',
     'cameras',
     'resources',
+    'analytics',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,9 @@ CORS_ALLOW_CREDENTIALS = True
 # Groq
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
 GROQ_MODEL = config('GROQ_MODEL', default='llama3-8b-8192')
+
+# RAG — FAISS vector store for historical incident context
+from pathlib import Path as _Path
+RAG_INDEX_DIR = _Path(BASE_DIR) / 'rag_data'
+RAG_TOP_K = config('RAG_TOP_K', default=3, cast=int)
+RAG_ENABLED = config('RAG_ENABLED', default=True, cast=bool)

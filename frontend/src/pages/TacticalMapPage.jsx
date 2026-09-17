@@ -467,7 +467,7 @@ export default function TacticalMapPage() {
                     style={{ width: '100%', fontSize: '0.8rem', justifyContent: 'center' }}
                     onClick={() => navigate('/operator')}
                   >
-                    Return to Command Center Queue
+                    Return to Report Dashboard
                   </button>
                 </div>
               </div>

@@ -92,6 +92,9 @@ export const completeAssignment = (assignmentId, data) =>
 export const updateAssignmentStatus = (assignmentId, data) =>
   api.patch(`/assignments/${assignmentId}/status/`, data);
 
+// ── Analytics
+export const getAnalyticsSummary = (params) => api.get('/analytics/summary/', { params });
+
 export default api;
 
 

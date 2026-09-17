@@ -1,20 +1,25 @@
 """
-AI Engine pipeline — orchestrates Groq extraction + risk scoring + incident update.
+AI Engine pipeline — orchestrates Groq extraction + RAG context + risk scoring + incident update.
 Called asynchronously after a Report is submitted.
 """
+import logging
 from incidents.models import Incident, IncidentStatus, IncidentTimeline, Report
-from ai_engine.groq_client import call_groq
+from ai_engine.groq_client import call_groq_with_context
 from risk_engine.calculator import calculate_risk, assign_required_capabilities
+
+logger = logging.getLogger(__name__)
 
 
 def analyze_report(report: Report):
     """
     Full pipeline:
       1. Create or find the associated Incident
-      2. Call Groq (or mock) for structured extraction
-      3. Run risk engine for risk_score, priority, breakdown
-      4. Update Incident with all AI + risk data
-      5. Append timeline events
+      2. Query FAISS RAG store for similar historical incidents
+      3. Call Groq (or mock) with RAG context for structured extraction
+      4. Run risk engine for risk_score, priority, breakdown
+      5. Update Incident with all AI + risk data
+      6. Append timeline events
+      7. Push live WebSocket update
     """
     description = report.description
     location = report.location
@@ -36,8 +41,29 @@ def analyze_report(report: Report):
         actor_label='AI Engine',
     )
 
-    # ── Step 2: Groq LLM extraction
-    extracted = call_groq(description, location)
+    # ── Step 2: RAG lookup — find similar historical incidents
+    rag_results = []
+    try:
+        from ai_engine.rag_store import search
+        rag_results = search(description)
+        if rag_results:
+            rag_ids = ', '.join(r['incident_id'] for r in rag_results)
+            logger.info(f'[RAG] Retrieved {len(rag_results)} similar incidents: {rag_ids}')
+            IncidentTimeline.objects.create(
+                incident=incident,
+                event=(
+                    f'RAG context retrieved: {len(rag_results)} similar historical incident(s) found '
+                    f'({rag_ids}) — used to enhance AI classification.'
+                ),
+                actor_label='RAG Engine',
+            )
+        else:
+            logger.info('[RAG] No similar incidents found — proceeding with standard extraction.')
+    except Exception as exc:
+        logger.warning(f'[RAG] Lookup failed: {exc} — continuing without RAG context.')
+
+    # ── Step 3: Groq LLM extraction (RAG-enhanced)
+    extracted = call_groq_with_context(description, location, rag_results)
 
     incident_type = extracted.get('incident_type', 'UNKNOWN')
     people_exposed = extracted.get('people_exposed', 0)
@@ -47,10 +73,10 @@ def analyze_report(report: Report):
     ai_summary = extracted.get('ai_summary', '')
     confidence = extracted.get('confidence', 0.5)
 
-    # ── Step 3: Capability assignment (merge AI + rule-based)
+    # ── Step 4: Capability assignment (merge AI + rule-based)
     required_capabilities = assign_required_capabilities(incident_type, ai_caps)
 
-    # ── Step 4: Risk scoring
+    # ── Step 5: Risk scoring
     risk_result = calculate_risk(
         incident_type=incident_type,
         location=location,
@@ -60,7 +86,7 @@ def analyze_report(report: Report):
         confidence=confidence,
     )
 
-    # ── Step 5: Update incident record
+    # ── Step 6: Update incident record
     incident.incident_type = incident_type
     incident.people_exposed = people_exposed
     incident.spread_potential = spread_potential
@@ -74,10 +100,11 @@ def analyze_report(report: Report):
     incident.status = IncidentStatus.AWAITING_APPROVAL
     incident.save()
 
+    rag_note = f' (RAG: {len(rag_results)} similar past incidents used)' if rag_results else ''
     IncidentTimeline.objects.create(
         incident=incident,
         event=(
-            f'AI extraction complete. Type: {incident_type}, '
+            f'AI extraction complete{rag_note}. Type: {incident_type}, '
             f'Risk: {risk_result["risk_score"]}, Priority: {risk_result["priority"]}, '
             f'Confidence: {confidence:.0%}.'
         ),
@@ -90,8 +117,26 @@ def analyze_report(report: Report):
         actor_label='Risk Engine',
     )
 
-    # ── Step 6: Push live WebSocket update
+    # ── Step 7: Push live WebSocket update
     _broadcast(incident)
+
+
+def index_incident_in_rag(incident):
+    """
+    Add a resolved/closed incident to the FAISS RAG index.
+    Call this after an incident is marked RESOLVED or CLOSED.
+    Safe to call multiple times — FAISS will accumulate duplicate entries
+    only if called multiple times; prefer calling once per lifecycle transition.
+    """
+    try:
+        from ai_engine.rag_store import add_incident
+        success = add_incident(incident)
+        if success:
+            logger.info(f'[RAG] Indexed incident {incident.incident_id} into FAISS store.')
+        return success
+    except Exception as exc:
+        logger.warning(f'[RAG] Failed to index incident {incident.incident_id}: {exc}')
+        return False
 
 
 def _broadcast(incident):

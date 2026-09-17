@@ -173,6 +173,15 @@ def _broadcast_incident_update(incident):
         pass  # Channel layer may not be available in dev
 
 
+def _index_into_rag(incident):
+    """Background helper: index a resolved/closed incident into the FAISS RAG store."""
+    try:
+        from ai_engine.pipeline import index_incident_in_rag
+        index_incident_in_rag(incident)
+    except Exception as exc:
+        print(f'[JarVIZ] RAG indexing error for {incident.incident_id}: {exc}')
+
+
 class MyReportsView(generics.ListAPIView):
     """GET /api/reports/mine/ — reporter sees their own reports."""
     serializer_class = ReportSerializer
@@ -203,6 +212,14 @@ def incident_close(request, pk):
         event=timeline_text,
         actor=request.user,
     )
+
+    # Index the closed incident into the FAISS RAG store for future classification context
+    import threading
+    threading.Thread(
+        target=_index_into_rag,
+        args=(incident,),
+        daemon=True,
+    ).start()
 
     _broadcast_incident_update(incident)
 
@@ -334,6 +351,14 @@ def update_report_status(request, pk):
                     event="All emergency reports associated with this incident have been resolved. Incident automatically marked RESOLVED.",
                     actor=request.user,
                 )
+
+                # Index the resolved incident into FAISS RAG store
+                import threading
+                threading.Thread(
+                    target=_index_into_rag,
+                    args=(report.incident,),
+                    daemon=True,
+                ).start()
 
         _broadcast_incident_update(report.incident)
 

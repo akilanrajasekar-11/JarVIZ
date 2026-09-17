@@ -11,15 +11,16 @@ import {
   FolderArchive,
   LogOut,
   Compass,
+  BarChart2,
 } from 'lucide-react';
 
 const getNavItems = (role) => {
   if (role === 'OPERATOR') return [
-    { to: '/operator', icon: LayoutDashboard, label: 'Command Center', end: true },
-    { to: '/operator/map', icon: Compass, label: 'Tactical Map' },
+    { to: '/operator', icon: LayoutDashboard, label: 'Report Dashboard', end: true },
+    { to: '/operator/analytics', icon: BarChart2, label: 'Analytical Dashboard' },
     { to: '/security', icon: Shield, label: 'Security Verification' },
-    { to: '/operator/incidents', icon: AlertTriangle, label: 'Incidents' },
     { to: '/operator/resources', icon: Truck, label: 'Resources' },
+    { to: '/operator/map', icon: Compass, label: 'Tactical Map' },
     { to: '/operator/cameras', icon: Video, label: 'CCTV Feed' },
   ];
   if (role === 'SECURITY') return [
@@ -29,6 +30,7 @@ const getNavItems = (role) => {
   ];
   if (role?.startsWith('TEAM_')) return [
     { to: '/team', icon: ClipboardList, label: 'Assignments', end: true },
+    { to: '/operator/analytics', icon: BarChart2, label: 'Analytical Dashboard' },
   ];
   return [
     { to: '/reporter', icon: LayoutDashboard, label: 'Dashboard', end: true },

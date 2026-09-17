@@ -9,3 +9,7 @@ python-decouple>=3.8
 groq>=0.9
 Pillow>=10.0
 dj-database-url>=2.1
+# RAG / Vector search
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+numpy>=1.24

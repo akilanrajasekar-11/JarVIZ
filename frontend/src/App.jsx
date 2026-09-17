@@ -11,6 +11,7 @@ import CamerasPage from './pages/CamerasPage';
 import TeamDashboard from './pages/TeamDashboard';
 import SecurityDashboard from './pages/SecurityDashboard';
 import TacticalMapPage from './pages/TacticalMapPage';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 
 function RequireAuth({ children, roles }) {
   const { user, loading } = useAuth();
@@ -77,7 +78,7 @@ function App() {
           } />
           <Route path="/operator/incidents" element={
             <RequireAuth roles={['OPERATOR']}>
-              <OperatorCommandCenter />
+              <Navigate to="/operator" replace />
             </RequireAuth>
           } />
           <Route path="/operator/incidents/:id" element={
@@ -93,6 +94,16 @@ function App() {
           <Route path="/operator/cameras" element={
             <RequireAuth roles={['OPERATOR']}>
               <CamerasPage />
+            </RequireAuth>
+          } />
+          <Route path="/operator/analytics" element={
+            <RequireAuth roles={['OPERATOR', 'TEAM_MEDICAL', 'TEAM_FIRE', 'TEAM_HAZMAT', 'TEAM_SECURITY', 'TEAM_FACILITIES']}>
+              <AnalyticsDashboard />
+            </RequireAuth>
+          } />
+          <Route path="/analytics" element={
+            <RequireAuth roles={['OPERATOR', 'TEAM_MEDICAL', 'TEAM_FIRE', 'TEAM_HAZMAT', 'TEAM_SECURITY', 'TEAM_FACILITIES']}>
+              <AnalyticsDashboard />
             </RequireAuth>
           } />
 
