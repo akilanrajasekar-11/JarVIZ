@@ -50,11 +50,28 @@ export const getIncident = (id) => api.get(`/incidents/${id}/`);
 export const getIncidentTimeline = (id) => api.get(`/incidents/${id}/timeline/`);
 export const approveIncident = (id, resourceIds) =>
   api.post(`/incidents/${id}/approve/`, { resource_ids: resourceIds });
+export const closeIncident = (id, data = {}) => api.post(`/incidents/${id}/close/`, data);
 
 // ── Reports
 export const submitReport = (formData) =>
   api.post('/reports/', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const getMyReports = () => api.get('/reports/mine/');
+export const getAllReports = (params) => api.get('/reports/all/', { params });
+export const securityApproveReport = (reportId, data) =>
+  api.post(`/reports/${reportId}/security-approve/`, data);
+export const updateReportStatus = (reportId, data) =>
+  api.patch(`/reports/${reportId}/status/`, data);
+
+// ── Separation & Containment Tasks
+export const getSeparationTasks = (incidentId) =>
+  api.get(`/incidents/${incidentId}/separation-tasks/`);
+export const getAllSeparationTasks = (params) =>
+  api.get('/separation-tasks/', { params });
+export const createSeparationTask = (incidentId, data) =>
+  api.post(`/incidents/${incidentId}/separation-tasks/`, data);
+export const updateSeparationTaskStatus = (taskId, data) =>
+  api.patch(`/separation-tasks/${taskId}/status/`, data);
+
 
 // ── Cameras
 export const getCameras = () => api.get('/cameras/');
@@ -66,7 +83,15 @@ export const createCctvEvent = (data) => api.post('/cameras/events/create/', dat
 export const getResources = () => api.get('/resources/');
 export const getRecommendation = (incidentId) =>
   api.get(`/incidents/${incidentId}/recommendation/`);
+export const assignResource = (incidentId, data) =>
+  api.post(`/incidents/${incidentId}/assign/`, data);
+export const revokeAssignment = (assignmentId, data = {}) =>
+  api.post(`/assignments/${assignmentId}/revoke/`, data);
+export const completeAssignment = (assignmentId, data) =>
+  api.post(`/assignments/${assignmentId}/complete/`, data);
 export const updateAssignmentStatus = (assignmentId, data) =>
   api.patch(`/assignments/${assignmentId}/status/`, data);
 
 export default api;
+
+

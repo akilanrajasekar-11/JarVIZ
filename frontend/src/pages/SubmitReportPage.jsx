@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { submitReport } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { CheckCircle2, AlertTriangle, Send } from 'lucide-react';
 
 const LOCATIONS = [
   { value: 'BLOCK_1', label: 'Block 1 — Library / Academic' },
@@ -67,12 +68,22 @@ export default function SubmitReportPage() {
         <Sidebar />
         <main className="main-content">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
-              <h2 style={{ color: '#22c55e', margin: '0 0 0.5rem' }}>Report Submitted</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', color: '#16a34a' }}>
+                <CheckCircle2 size={56} strokeWidth={1.5} />
+              </div>
+              <h2 style={{
+                fontFamily: "'Outfit', sans-serif",
+                color: '#16a34a',
+                margin: '0 0 0.5rem',
+                fontSize: '1.75rem',
+                letterSpacing: '-0.02em',
+              }}>Report Submitted</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '400px', lineHeight: '1.6', fontWeight: 300 }}>
                 Your report has been received. Our AI engine is analyzing it and will notify the Emergency Operator.
               </p>
+              {/* Gold accent line */}
+              <div style={{ width: '48px', height: '2px', background: '#D4AF37', margin: '0 auto 2rem' }} />
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                 <button className="btn btn-primary" onClick={() => setSuccess(false)}>
                   Report Another
@@ -93,7 +104,12 @@ export default function SubmitReportPage() {
       <Sidebar />
       <main className="main-content">
         <div className="page-header">
-          <h1 className="page-title">🚨 Report an Emergency</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ color: 'var(--gold)' }}>
+              <AlertTriangle size={24} />
+            </div>
+            <h1 className="page-title">Report an Emergency</h1>
+          </div>
           <p className="page-sub">Provide as much detail as possible — this will help the AI classify and prioritize your report</p>
         </div>
 
@@ -106,7 +122,7 @@ export default function SubmitReportPage() {
                 <label>Emergency Description *</label>
                 <textarea
                   className="form-input form-textarea"
-                  placeholder="Describe what you see in detail. Include: what is happening, who is affected, how severe it appears. e.g. 'Heavy smoke coming from the 2nd floor of Block 2, several students still inside.'"
+                  placeholder="Describe what you see in detail. Include: what is happening, who is affected, how severe it appears."
                   value={form.description}
                   onChange={set('description')}
                   rows={5}
@@ -151,25 +167,28 @@ export default function SubmitReportPage() {
                   type="file"
                   className="form-input"
                   accept="image/*,video/*"
+                  style={{ paddingTop: '0.5rem' }}
                   onChange={(e) => setForm({ ...form, evidence: e.target.files[0] })}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
                 <button
                   id="submit-report-btn"
                   type="submit"
                   className="btn btn-primary"
                   disabled={submitting || !form.description || !form.location}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                 >
-                  {submitting ? 'Submitting...' : '🚨 Submit Emergency Report'}
+                  <Send size={14} />
+                  {submitting ? 'Submitting...' : 'Submit Report'}
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => navigate('/reporter')}>
                   Cancel
                 </button>
               </div>
 
-              <div className="alert alert-info" style={{ marginTop: '1rem', marginBottom: 0 }}>
+              <div className="alert alert-info" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
                 <strong>How it works:</strong> Your report will be instantly analyzed by AI to extract the incident type, severity, and required response. An Emergency Operator will review and dispatch the appropriate teams.
               </div>
             </form>

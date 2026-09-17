@@ -1,32 +1,32 @@
-// Priority level color helpers
+// Priority level color helpers - Editorial Palette
 export const PRIORITY_COLORS = {
-  P0: { bg: 'bg-red-900/30', border: 'border-red-500', text: 'text-red-400', badge: '#ef4444', label: 'P0 — CRITICAL' },
-  P1: { bg: 'bg-orange-900/30', border: 'border-orange-500', text: 'text-orange-400', badge: '#f97316', label: 'P1 — SERIOUS' },
-  P2: { bg: 'bg-yellow-900/30', border: 'border-yellow-500', text: 'text-yellow-400', badge: '#eab308', label: 'P2 — SIGNIFICANT' },
-  P3: { bg: 'bg-blue-900/30', border: 'border-blue-500', text: 'text-blue-400', badge: '#3b82f6', label: 'P3 — LOWER URGENCY' },
+  P0: { bg: 'bg-red-900/10', border: 'border-red-600', text: 'text-red-700', badge: '#dc2626', label: 'P0 — CRITICAL' },
+  P1: { bg: 'bg-amber-900/10', border: 'border-amber-600', text: 'text-amber-700', badge: '#ea580c', label: 'P1 — SERIOUS' },
+  P2: { bg: 'bg-yellow-900/10', border: 'border-yellow-600', text: 'text-yellow-700', badge: '#D4AF37', label: 'P2 — SIGNIFICANT' },
+  P3: { bg: 'bg-blue-900/10', border: 'border-blue-800', text: 'text-blue-900', badge: '#1F3A5F', label: 'P3 — LOWER URGENCY' },
 };
 
 export const STATUS_COLORS = {
-  REPORTED: 'text-gray-400',
-  CLASSIFIED: 'text-blue-400',
-  PRIORITIZED: 'text-purple-400',
-  AWAITING_APPROVAL: 'text-yellow-400',
-  ASSIGNED: 'text-orange-400',
-  DISPATCHED: 'text-orange-300',
-  RESPONDING: 'text-green-400',
-  ON_SCENE: 'text-emerald-400',
-  RESOLVED: 'text-gray-400',
-  CLOSED: 'text-gray-600',
+  REPORTED: 'text-stone-500',
+  CLASSIFIED: 'text-blue-800',
+  PRIORITIZED: 'text-amber-700',
+  AWAITING_APPROVAL: 'text-amber-600',
+  ASSIGNED: 'text-stone-700',
+  DISPATCHED: 'text-blue-900',
+  RESPONDING: 'text-emerald-700',
+  ON_SCENE: 'text-emerald-800',
+  RESOLVED: 'text-stone-500',
+  CLOSED: 'text-stone-400',
 };
 
 export const INCIDENT_TYPE_ICONS = {
-  FIRE_SMOKE: '🔥',
-  MEDICAL: '🏥',
-  CHEMICAL: '⚗️',
-  SECURITY_THREAT: '🔐',
-  ELECTRICAL: '⚡',
-  VIOLENCE_CROWD: '👥',
-  UNKNOWN: '❓',
+  FIRE_SMOKE: 'Flame',
+  MEDICAL: 'Activity',
+  CHEMICAL: 'FlaskConical',
+  SECURITY_THREAT: 'ShieldAlert',
+  ELECTRICAL: 'Zap',
+  VIOLENCE_CROWD: 'Users',
+  UNKNOWN: 'AlertTriangle',
 };
 
 export const CAPABILITY_LABELS = {

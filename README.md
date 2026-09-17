@@ -364,11 +364,29 @@ pip install -r requirements.txt
 
 cp ../.env.example .env           # then fill in your values
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py seed_demo_data   # Seeds all demo roles, resources, cameras & incidents
 python manage.py runserver
 ```
 
 Backend runs at `http://localhost:8000`.
+
+### Demo User Accounts & Credentials
+
+Default password for all demo accounts: **`JarVIZ@123`**
+
+| Role | Username | Password | Access / Dashboard |
+|---|---|---|---|
+| **Emergency Operator** | `operator` | `JarVIZ@123` | Command Center (`/operator`), Approval & Dispatch |
+| **System Admin** | `admin` | `JarVIZ@123` | Django Admin (`/admin`), Command Center |
+| **Student** | `student` | `JarVIZ@123` | Emergency Reporter (`/reporter`) |
+| **Faculty** | `faculty` | `JarVIZ@123` | Emergency Reporter (`/reporter`) |
+| **Security Guard** | `security_staff` | `JarVIZ@123` | Security Reporter (`/reporter`) |
+| **Fire Response Team** | `team_fire` | `JarVIZ@123` | Unit Console (`/team`) |
+| **Medical Response Team** | `team_medical` | `JarVIZ@123` | Unit Console (`/team`) |
+| **Hazmat / EHS Team** | `team_hazmat` | `JarVIZ@123` | Unit Console (`/team`) |
+| **Tactical Security Unit** | `team_security` | `JarVIZ@123` | Unit Console (`/team`) |
+| **Facilities / Maintenance**| `team_facilities` | `JarVIZ@123` | Unit Console (`/team`) |
+
 
 ### 3. Frontend setup
 
@@ -526,8 +544,12 @@ IncidentTimeline
 | `GET` | `/api/incidents/{id}/timeline/` | Auditable event timeline |
 | `GET` | `/api/incidents/{id}/cameras/` | Cameras covering the incident location |
 | `GET` | `/api/incidents/{id}/recommendation/` | Recommended resources plus alternatives |
-| `POST` | `/api/incidents/{id}/approve/` | Operator approves and assigns resources |
-| `PATCH` | `/api/assignments/{id}/status/` | Response team updates operational status |
+| `POST` | `/api/incidents/{id}/approve/` | Operator approves and assigns initial resources |
+| `POST` | `/api/incidents/{id}/assign/` | Operator dynamically dispatches additional response units |
+| `POST` | `/api/assignments/{id}/revoke/` | Operator revokes/recalls unit assignment with audit reason |
+| `PATCH` | `/api/assignments/{id}/status/` | Response team updates operational status (`RESPONDING`, `ON_SCENE`) |
+| `POST` | `/api/assignments/{id}/complete/` | Response team files completion debrief, casualty count & hazard clearance |
+| `POST` | `/api/incidents/{id}/close/` | Operator reviews debrief reports and performs administrative closure |
 | `POST` | `/api/cameras/events/` | Ingest a (simulated) CCTV detection event |
 | `WS` | `/ws/incidents/` | Live incident and priority-queue updates |
 
@@ -633,16 +655,26 @@ inside Lab 4, Block 2."
          Operator approves
                 │
                 ↓
-             Dispatch
+      Initial Unit Dispatch
+   (Dynamic Re-dispatch / Revoke)
                 │
                 ↓
-      Responding → On Scene
+       Responding → On Scene
                 │
                 ↓
-             Resolved
+   Rescue Completion & Debrief Filed
+  (Casualties treated, Site secured)
                 │
                 ↓
-       Incident timeline generated
+     All Units Completed?
+       ├── Yes ──> Auto-Resolved
+       └── No  ──> Awaiting Units
+                │
+                ↓
+    Operator Administrative Closure
+                │
+                ↓
+     Auditable Timeline & Archive
 ```
 
 ---

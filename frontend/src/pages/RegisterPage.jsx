@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/api';
+import { Shield } from 'lucide-react';
 
 const ROLES = [
   { value: 'STUDENT', label: 'Student' },
@@ -44,10 +45,15 @@ export default function RegisterPage() {
     <div className="login-page">
       <div className="login-card login-card-wide">
         <div className="login-logo">
-          <span className="logo-icon">🛡️</span>
+          <div style={{ color: 'var(--gold)', display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <Shield size={38} strokeWidth={2} />
+          </div>
           <h1 className="logo-title">JarVIZ</h1>
           <p className="logo-sub">Create your account</p>
         </div>
+
+        {/* Decorative gold accent line */}
+        <div style={{ width: '48px', height: '2px', background: '#D4AF37', margin: '0 auto 2.5rem' }} />
 
         <form className="login-form" onSubmit={handleSubmit}>
           {error && <div className="alert alert-error">{error}</div>}
@@ -92,7 +98,7 @@ export default function RegisterPage() {
             <input type="password" className="form-input" value={form.password} onChange={set('password')} required placeholder="At least 8 characters" minLength={8} />
           </div>
 
-          <button id="register-submit" type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <button id="register-submit" type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: '0.5rem' }}>
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>

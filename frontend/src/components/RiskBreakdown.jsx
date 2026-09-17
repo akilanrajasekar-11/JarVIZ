@@ -2,12 +2,12 @@ export default function RiskBreakdown({ breakdown = {} }) {
   if (!Object.keys(breakdown).length) return null;
 
   const factors = [
-    { key: 'hazard_severity', label: 'Hazard Severity', color: '#ef4444' },
-    { key: 'people_exposure', label: 'People Exposure', color: '#f97316' },
-    { key: 'escalation_potential', label: 'Escalation Potential', color: '#eab308' },
-    { key: 'vulnerability', label: 'Vulnerability', color: '#a855f7' },
-    { key: 'response_difficulty', label: 'Response Difficulty', color: '#3b82f6' },
-    { key: 'uncertainty', label: 'Uncertainty', color: '#6b7280' },
+    { key: 'hazard_severity', label: 'Hazard Severity', color: '#dc2626' },
+    { key: 'people_exposure', label: 'People Exposure', color: '#ea580c' },
+    { key: 'escalation_potential', label: 'Escalation Potential', color: '#D4AF37' },
+    { key: 'vulnerability', label: 'Vulnerability', color: '#1F3A5F' },
+    { key: 'response_difficulty', label: 'Response Difficulty', color: '#2563eb' },
+    { key: 'uncertainty', label: 'Uncertainty', color: '#8a8a8a' },
   ];
 
   return (

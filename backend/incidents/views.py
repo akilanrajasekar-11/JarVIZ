@@ -8,15 +8,18 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
-from .models import Incident, Report, IncidentTimeline, IncidentStatus
+from django.utils import timezone
+from .models import Incident, Report, IncidentTimeline, IncidentStatus, IncidentSeparationTask
 from .serializers import (
     IncidentSerializer,
     IncidentDetailSerializer,
     ReportCreateSerializer,
     ReportSerializer,
     IncidentTimelineSerializer,
+    IncidentSeparationTaskSerializer,
 )
-from .permissions import IsOperator, IsOperatorOrTeam
+from .permissions import IsOperator, IsOperatorOrTeam, IsSecurityOrOperator
+
 
 
 def _run_pipeline(report):
@@ -177,3 +180,223 @@ class MyReportsView(generics.ListAPIView):
 
     def get_queryset(self):
         return Report.objects.filter(reporter=self.request.user)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def incident_close(request, pk):
+    """
+    POST /api/incidents/{id}/close/
+    Operator performs final administrative sign-off on a resolved incident.
+    """
+    incident = get_object_or_404(Incident, pk=pk)
+    incident.status = IncidentStatus.CLOSED
+    incident.save(update_fields=['status', 'updated_at'])
+
+    note = request.data.get('notes', '').strip()
+    timeline_text = f"Incident officially closed and archived by Operator {request.user.get_full_name() or request.user.username}."
+    if note:
+        timeline_text += f" Closure Note: {note}"
+
+    IncidentTimeline.objects.create(
+        incident=incident,
+        event=timeline_text,
+        actor=request.user,
+    )
+
+    _broadcast_incident_update(incident)
+
+    return Response(IncidentDetailSerializer(incident).data)
+
+
+class AllReportsView(generics.ListAPIView):
+    """
+    GET /api/reports/all/
+    List all emergency reports with response status and AI incident links.
+    Accessible to security staff and operators.
+    """
+    serializer_class = ReportSerializer
+    permission_classes = [IsSecurityOrOperator]
+
+    def get_queryset(self):
+        qs = Report.objects.select_related('incident', 'reporter', 'security_approved_by').all()
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        incident_filter = self.request.query_params.get('incident')
+        if incident_filter:
+            qs = qs.filter(incident_id=incident_filter)
+        return qs
+
+
+@api_view(['POST'])
+@permission_classes([IsSecurityOrOperator])
+def security_approve_report(request, pk):
+    """
+    POST /api/reports/<pk>/security-approve/
+    Security Guard inspects report response on the ground and signs off,
+    authorizing that the report response can resolve.
+    """
+    report = get_object_or_404(Report, pk=pk)
+    notes = request.data.get('notes', '').strip()
+    mark_resolved = request.data.get('mark_resolved', True)
+    response_notes = request.data.get('response_notes', '').strip()
+
+    report.security_approved_by = request.user
+    report.security_approved_at = timezone.now()
+    report.security_approval_notes = notes
+    report.can_resolve = True
+    if response_notes:
+        report.response_notes = response_notes
+
+    if mark_resolved:
+        report.status = Report.ReportStatus.SECURITY_APPROVED
+    else:
+        report.status = Report.ReportStatus.INVESTIGATING
+    report.save()
+
+    guard_name = request.user.get_full_name() or request.user.username
+
+    # Audit log to incident timeline if attached
+    if report.incident:
+        timeline_msg = f"Security Guard {guard_name} approved report #{report.id} response. On-scene check confirmed safe to resolve."
+        if notes:
+            timeline_msg += f" Verification notes: {notes}"
+        IncidentTimeline.objects.create(
+            incident=report.incident,
+            event=timeline_msg,
+            actor=request.user,
+        )
+        _broadcast_incident_update(report.incident)
+
+    return Response(ReportSerializer(report).data)
+
+
+@api_view(['PATCH', 'POST'])
+@permission_classes([IsSecurityOrOperator])
+def update_report_status(request, pk):
+    """
+    PATCH / POST /api/reports/<pk>/status/
+    Operator or Security updates report status (e.g. RESOLVED, INVESTIGATING, DISMISSED)
+    with optional notes and timeline audit logging.
+    """
+    report = get_object_or_404(Report, pk=pk)
+    new_status = request.data.get('status')
+    notes = request.data.get('notes', '').strip()
+
+    if new_status and new_status in Report.ReportStatus.values:
+        report.status = new_status
+        if new_status == Report.ReportStatus.RESOLVED:
+            report.can_resolve = True
+
+    if notes:
+        report.response_notes = notes
+
+    report.save()
+
+    if report.incident:
+        user_name = request.user.get_full_name() or request.user.username
+        role_label = str(getattr(request.user, 'role', 'Operator')).title()
+        timeline_msg = f"{role_label} {user_name} updated report #{report.id} status to '{report.get_status_display()}'."
+        if notes:
+            timeline_msg += f" Note: {notes}"
+        IncidentTimeline.objects.create(
+            incident=report.incident,
+            event=timeline_msg,
+            actor=request.user,
+        )
+        _broadcast_incident_update(report.incident)
+
+    return Response(ReportSerializer(report).data)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def incident_separation_tasks(request, pk):
+    """
+    GET: list separation tasks for incident
+    POST: operator adds separation/containment task to incident
+    """
+    incident = get_object_or_404(Incident, pk=pk)
+    if request.method == 'GET':
+        tasks = incident.separation_tasks.all()
+        return Response(IncidentSeparationTaskSerializer(tasks, many=True).data)
+
+    if not request.user.is_operator:
+        return Response(
+            {'detail': 'Only Emergency Operators can create separation tasks.'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    data = request.data.copy()
+    data['incident'] = incident.id
+    serializer = IncidentSeparationTaskSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+    task = serializer.save(created_by=request.user)
+
+    # Log to incident timeline
+    operator_name = request.user.get_full_name() or request.user.username
+    IncidentTimeline.objects.create(
+        incident=incident,
+        event=f"Operator {operator_name} deployed separation task: '{task.title}' [{task.get_category_display()}] targeting {task.target_location or incident.get_location_display()}.",
+        actor=request.user,
+    )
+    _broadcast_incident_update(incident)
+
+    return Response(IncidentSeparationTaskSerializer(task).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def separation_tasks_list(request):
+    """
+    GET /api/separation-tasks/
+    List separation tasks across active incidents with filters.
+    """
+    qs = IncidentSeparationTask.objects.select_related('incident', 'created_by', 'completed_by').all()
+    incident_id = request.query_params.get('incident')
+    if incident_id:
+        qs = qs.filter(incident_id=incident_id)
+    task_status = request.query_params.get('status')
+    if task_status:
+        qs = qs.filter(status=task_status)
+    active_only = request.query_params.get('active_only')
+    if active_only in ['true', '1', True]:
+        qs = qs.exclude(incident__status__in=[IncidentStatus.RESOLVED, IncidentStatus.CLOSED])
+    return Response(IncidentSeparationTaskSerializer(qs, many=True).data)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def separation_task_update_status(request, pk):
+    """
+    PATCH /api/separation-tasks/<pk>/status/
+    Update status (PENDING, IN_PROGRESS, COMPLETED) and completion notes.
+    """
+    task = get_object_or_404(IncidentSeparationTask, pk=pk)
+    new_status = request.data.get('status')
+    notes = request.data.get('completion_notes', '').strip()
+
+    if new_status in IncidentSeparationTask.TaskStatus.values:
+        task.status = new_status
+        if new_status == IncidentSeparationTask.TaskStatus.COMPLETED:
+            task.completed_by = request.user
+            task.completed_at = timezone.now()
+        if notes:
+            task.completion_notes = notes
+        task.save()
+
+        actor_name = request.user.get_full_name() or request.user.username
+        timeline_text = f"Separation task '{task.title}' updated to {task.get_status_display()} by {actor_name}."
+        if notes:
+            timeline_text += f" Notes: {notes}"
+        IncidentTimeline.objects.create(
+            incident=task.incident,
+            event=timeline_text,
+            actor=request.user,
+        )
+        _broadcast_incident_update(task.incident)
+
+    return Response(IncidentSeparationTaskSerializer(task).data)
+
+

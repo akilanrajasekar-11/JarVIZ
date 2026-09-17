@@ -64,6 +64,7 @@ class ResourceAssignment(models.Model):
         RESPONDING = 'RESPONDING', 'Responding'
         ON_SCENE = 'ON_SCENE', 'On Scene'
         COMPLETED = 'COMPLETED', 'Completed'
+        REVOKED = 'REVOKED', 'Revoked'
 
     status = models.CharField(
         max_length=15,
@@ -72,6 +73,12 @@ class ResourceAssignment(models.Model):
     )
     assigned_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revocation_reason = models.TextField(blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    completion_report = models.TextField(blank=True)
+    casualties_treated = models.PositiveIntegerField(default=0)
+    hazard_cleared = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
 
     class Meta:
@@ -79,3 +86,5 @@ class ResourceAssignment(models.Model):
 
     def __str__(self):
         return f'{self.resource.name} → {self.incident.incident_id} [{self.status}]'
+
+

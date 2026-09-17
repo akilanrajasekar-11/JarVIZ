@@ -9,6 +9,7 @@ import IncidentDetailPage from './pages/IncidentDetailPage';
 import ResourcesPage from './pages/ResourcesPage';
 import CamerasPage from './pages/CamerasPage';
 import TeamDashboard from './pages/TeamDashboard';
+import SecurityDashboard from './pages/SecurityDashboard';
 
 function RequireAuth({ children, roles }) {
   const { user, loading } = useAuth();
@@ -23,6 +24,7 @@ function RootRedirect() {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'OPERATOR') return <Navigate to="/operator" replace />;
+  if (user.role === 'SECURITY') return <Navigate to="/security" replace />;
   if (user.role?.startsWith('TEAM_')) return <Navigate to="/team" replace />;
   return <Navigate to="/reporter" replace />;
 }
@@ -36,6 +38,13 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<RootRedirect />} />
+
+          {/* Security Guard routes */}
+          <Route path="/security" element={
+            <RequireAuth roles={['SECURITY', 'OPERATOR']}>
+              <SecurityDashboard />
+            </RequireAuth>
+          } />
 
           {/* Reporter routes */}
           <Route path="/reporter" element={
@@ -58,6 +67,7 @@ function App() {
           <Route path="/operator" element={
             <RequireAuth roles={['OPERATOR']}>
               <OperatorCommandCenter />
+
             </RequireAuth>
           } />
           <Route path="/operator/incidents" element={

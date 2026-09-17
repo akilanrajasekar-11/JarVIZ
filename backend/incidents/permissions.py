@@ -22,3 +22,14 @@ class IsOperatorOrTeam(BasePermission):
         if not request.user.is_authenticated:
             return False
         return request.user.is_operator or request.user.is_response_team
+
+
+class IsSecurityOrOperator(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return (
+            request.user.role in [UserRole.SECURITY, UserRole.OPERATOR]
+            or request.user.is_superuser
+        )
+

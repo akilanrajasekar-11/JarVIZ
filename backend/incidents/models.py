@@ -116,6 +116,13 @@ class Report(models.Model):
         CCTV = 'CCTV', 'CCTV System'
         OPERATOR = 'OPERATOR', 'Operator'
 
+    class ReportStatus(models.TextChoices):
+        PENDING_REVIEW = 'PENDING_REVIEW', 'Pending Security Review'
+        INVESTIGATING = 'INVESTIGATING', 'Under Security Check'
+        SECURITY_APPROVED = 'SECURITY_APPROVED', 'Approved by Security'
+        RESOLVED = 'RESOLVED', 'Resolved'
+        DISMISSED = 'DISMISSED', 'Dismissed'
+
     incident = models.ForeignKey(
         Incident, on_delete=models.CASCADE, related_name='reports', null=True, blank=True
     )
@@ -136,11 +143,27 @@ class Report(models.Model):
     additional_info = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Security Guard Review & Resolution Approval
+    status = models.CharField(
+        max_length=25, choices=ReportStatus.choices, default=ReportStatus.PENDING_REVIEW
+    )
+    response_notes = models.TextField(blank=True)
+    security_approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_reports',
+    )
+    security_approved_at = models.DateTimeField(null=True, blank=True)
+    security_approval_notes = models.TextField(blank=True)
+    can_resolve = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'Report by {self.source} @ {self.created_at:%Y-%m-%d %H:%M}'
+        return f'Report by {self.source} @ {self.created_at:%Y-%m-%d %H:%M} [{self.status}]'
 
 
 class IncidentTimeline(models.Model):
@@ -166,3 +189,77 @@ class IncidentTimeline(models.Model):
 
     def __str__(self):
         return f'{self.incident.incident_id} — {self.event[:60]}'
+
+
+class IncidentSeparationTask(models.Model):
+    """
+    Operational separation and perimeter containment task assigned during active incidents.
+    Enables operators to isolate sectors, establish cordons, lock down access points,
+    and separate non-affected campus zones.
+    """
+    class TaskPriority(models.TextChoices):
+        URGENT = 'URGENT', 'Urgent / Immediate'
+        HIGH = 'HIGH', 'High Priority'
+        MEDIUM = 'MEDIUM', 'Medium Priority'
+        LOW = 'LOW', 'Low Priority'
+
+    class TaskStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending Execution'
+        IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
+        COMPLETED = 'COMPLETED', 'Completed'
+
+    class SeparationCategory(models.TextChoices):
+        PERIMETER_CORDON = 'PERIMETER_CORDON', 'Perimeter Cordon & Boundary Separation'
+        SECTOR_ISOLATION = 'SECTOR_ISOLATION', 'Sector & Zone Isolation'
+        ACCESS_LOCKDOWN = 'ACCESS_LOCKDOWN', 'Access Point Lockdown'
+        CROWD_DIVERSION = 'CROWD_DIVERSION', 'Crowd & Traffic Diversion'
+        HVAC_VENTILATION = 'HVAC_VENTILATION', 'HVAC & Ventilation Shutoff'
+        UTILITY_ISOLATION = 'UTILITY_ISOLATION', 'Utility / Power / Gas Cutoff'
+        EVACUATION_CLEARANCE = 'EVACUATION_CLEARANCE', 'Evacuation Clearance & Separation'
+
+    incident = models.ForeignKey(
+        Incident, on_delete=models.CASCADE, related_name='separation_tasks'
+    )
+    title = models.CharField(max_length=200)
+    category = models.CharField(
+        max_length=35,
+        choices=SeparationCategory.choices,
+        default=SeparationCategory.PERIMETER_CORDON,
+    )
+    description = models.TextField(blank=True)
+    target_location = models.CharField(max_length=150, blank=True)
+    assigned_role = models.CharField(max_length=50, blank=True)
+    priority = models.CharField(
+        max_length=15,
+        choices=TaskPriority.choices,
+        default=TaskPriority.HIGH,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=TaskStatus.choices,
+        default=TaskStatus.PENDING,
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_separation_tasks',
+    )
+    completed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='completed_separation_tasks',
+    )
+    completion_notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'[{self.incident.incident_id}] {self.title} ({self.status})'
+

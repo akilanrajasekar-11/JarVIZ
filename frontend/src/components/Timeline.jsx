@@ -1,10 +1,13 @@
 import { formatDateTime } from '../utils/constants';
+import { ClipboardList } from 'lucide-react';
 
 export default function Timeline({ events = [] }) {
   if (!events.length) {
     return (
-      <div className="empty-state" style={{ padding: '1.5rem' }}>
-        <div className="empty-icon">📋</div>
+      <div className="empty-state" style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>
+          <ClipboardList size={28} strokeWidth={1.5} />
+        </div>
         <p className="empty-title">No timeline events yet</p>
       </div>
     );
