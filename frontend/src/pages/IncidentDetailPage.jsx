@@ -33,7 +33,9 @@ import {
   Archive,
   ListTodo,
   ShieldCheck,
+  Compass,
 } from 'lucide-react';
+import CampusTacticalMap from '../components/CampusTacticalMap';
 import { PRIORITY_COLORS, CAPABILITY_LABELS, formatDateTime } from '../utils/constants';
 
 export default function IncidentDetailPage() {
@@ -245,7 +247,7 @@ export default function IncidentDetailPage() {
   const reports = incident.reports || [];
   const approvedReports = reports.filter((r) => r.can_resolve);
 
-  const tabs = ['overview', 'assigned units', 'separation tasks', 'ai analysis', 'risk', 'cameras', 'timeline'];
+  const tabs = ['overview', 'tactical map', 'assigned units', 'separation tasks', 'ai analysis', 'risk', 'cameras', 'timeline'];
 
 
   const getStatusBadgeStyle = (status) => {
@@ -535,7 +537,9 @@ export default function IncidentDetailPage() {
                 whiteSpace: 'nowrap',
               }}
             >
-              {tab === 'assigned units'
+              {tab === 'tactical map'
+                ? 'Tactical Map'
+                : tab === 'assigned units'
                 ? `Assigned Units (${activeAssignments.length})`
                 : tab === 'separation tasks'
                 ? `Separation Tasks (${separationTasks.length})`
@@ -750,6 +754,58 @@ export default function IncidentDetailPage() {
                 ) : (
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No cameras covering this location</p>
                 )}
+              </div>
+
+              {/* Tactical Zone & Perimeter Overview Card */}
+              <div className="card" style={{ gridColumn: '1 / -1', padding: 0, overflow: 'hidden' }}>
+                <div
+                  className="card-header"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.85rem 1.25rem',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Compass size={16} color="var(--gold)" />
+                    <span className="card-title">Tactical Zone & Spatial Perimeter</span>
+                    <span
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '0.7rem',
+                        color: 'var(--gold)',
+                        padding: '0.15rem 0.4rem',
+                        background: 'rgba(212,175,55,0.1)',
+                        border: '1px solid rgba(212,175,55,0.25)',
+                      }}
+                    >
+                      SECTOR: {incident.location}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setActiveTab('tactical map')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem' }}
+                  >
+                    Expand Interactive Map Tab
+                  </button>
+                </div>
+                <div style={{ height: '320px', width: '100%', position: 'relative' }}>
+                  <CampusTacticalMap
+                    incidents={[incident]}
+                    cameras={cameras}
+                    resources={allResources}
+                    separationTasks={separationTasks}
+                    focusedLocation={incident.location}
+                    selectedIncidentId={incident.id}
+                    compactMode={true}
+                    customHeight="320px"
+                  />
+                </div>
               </div>
 
               {/* Ground Verification & Security Guard Sign-Off Card */}
@@ -1081,6 +1137,48 @@ export default function IncidentDetailPage() {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Tactical Map Tab */}
+          {activeTab === 'tactical map' && (
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+              <div
+                className="card-header"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '1rem 1.5rem',
+                  borderBottom: '1px solid var(--border)',
+                }}
+              >
+                <div>
+                  <span className="card-title">Zone Tactical Geometry & Spatial Perimeter</span>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                    Incident Location: <strong>{incident.location_display || incident.location}</strong> — Active cordon containment, CCTV coverage, and arriving units
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => navigate('/operator/map')}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem' }}
+                >
+                  <Compass size={13} color="var(--gold)" /> Full Campus View
+                </button>
+              </div>
+              <div style={{ height: '640px', width: '100%', position: 'relative' }}>
+                <CampusTacticalMap
+                  incidents={[incident]}
+                  cameras={cameras}
+                  resources={allResources}
+                  separationTasks={separationTasks}
+                  focusedLocation={incident.location}
+                  selectedIncidentId={incident.id}
+                  customHeight="640px"
+                />
+              </div>
             </div>
           )}
 

@@ -10,11 +10,13 @@ import {
   FilePlus2,
   FolderArchive,
   LogOut,
+  Compass,
 } from 'lucide-react';
 
 const getNavItems = (role) => {
   if (role === 'OPERATOR') return [
     { to: '/operator', icon: LayoutDashboard, label: 'Command Center', end: true },
+    { to: '/operator/map', icon: Compass, label: 'Tactical Map' },
     { to: '/security', icon: Shield, label: 'Security Verification' },
     { to: '/operator/incidents', icon: AlertTriangle, label: 'Incidents' },
     { to: '/operator/resources', icon: Truck, label: 'Resources' },

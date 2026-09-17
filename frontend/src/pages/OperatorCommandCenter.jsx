@@ -25,6 +25,7 @@ import {
   ArrowRight,
   ListTodo,
   FileText,
+  Compass,
 } from 'lucide-react';
 
 const SEPARATION_PRESETS = [
@@ -283,6 +284,21 @@ export default function OperatorCommandCenter() {
                 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
               >
                 <RotateCw size={12} /> Refresh
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => navigate('/operator/map')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  backgroundColor: 'var(--navy)',
+                  color: '#FFFFFF',
+                  borderColor: 'var(--navy)',
+                  fontWeight: 600,
+                }}
+              >
+                <Compass size={13} color="var(--gold)" /> Live Tactical Map
               </button>
             </div>
           </div>

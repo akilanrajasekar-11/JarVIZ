@@ -10,6 +10,7 @@ import ResourcesPage from './pages/ResourcesPage';
 import CamerasPage from './pages/CamerasPage';
 import TeamDashboard from './pages/TeamDashboard';
 import SecurityDashboard from './pages/SecurityDashboard';
+import TacticalMapPage from './pages/TacticalMapPage';
 
 function RequireAuth({ children, roles }) {
   const { user, loading } = useAuth();
@@ -67,7 +68,11 @@ function App() {
           <Route path="/operator" element={
             <RequireAuth roles={['OPERATOR']}>
               <OperatorCommandCenter />
-
+            </RequireAuth>
+          } />
+          <Route path="/operator/map" element={
+            <RequireAuth roles={['OPERATOR']}>
+              <TacticalMapPage />
             </RequireAuth>
           } />
           <Route path="/operator/incidents" element={
