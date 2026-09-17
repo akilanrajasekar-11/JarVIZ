@@ -234,8 +234,8 @@ export default function OperatorCommandCenter() {
     }
   };
 
-  const p0 = incidents.filter((i) => i.priority === 'P0');
-  const p1 = incidents.filter((i) => i.priority === 'P1');
+  const p0 = activeIncidents.filter((i) => i.priority === 'P0');
+  const p1 = activeIncidents.filter((i) => i.priority === 'P1');
   const awaiting = incidents.filter((i) => i.status === 'AWAITING_APPROVAL');
 
   const activeReports = reports.filter(

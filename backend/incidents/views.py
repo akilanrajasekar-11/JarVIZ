@@ -305,6 +305,36 @@ def update_report_status(request, pk):
             event=timeline_msg,
             actor=request.user,
         )
+
+        # If report resolved or dismissed, check if all associated reports for this incident are now resolved/dismissed
+        if new_status in [Report.ReportStatus.RESOLVED, Report.ReportStatus.DISMISSED]:
+            has_active_reports = report.incident.reports.exclude(
+                status__in=[Report.ReportStatus.RESOLVED, Report.ReportStatus.DISMISSED]
+            ).exists()
+            if not has_active_reports and report.incident.status not in [IncidentStatus.RESOLVED, IncidentStatus.CLOSED]:
+                from resources.models import ResourceAssignment, AssignmentStatus, Resource, ResourceStatus
+                report.incident.status = IncidentStatus.RESOLVED
+                report.incident.resolved_at = timezone.now()
+                report.incident.save(update_fields=['status', 'resolved_at', 'updated_at'])
+
+                # Complete active assignments and release resources
+                active_assignments = report.incident.assignments.filter(
+                    status__in=[AssignmentStatus.DISPATCHED, AssignmentStatus.EN_ROUTE, AssignmentStatus.ON_SCENE]
+                )
+                for assignment in active_assignments:
+                    assignment.status = AssignmentStatus.COMPLETED
+                    assignment.completed_at = timezone.now()
+                    assignment.save(update_fields=['status', 'completed_at'])
+                    if assignment.resource:
+                        assignment.resource.status = ResourceStatus.AVAILABLE
+                        assignment.resource.save(update_fields=['status'])
+
+                IncidentTimeline.objects.create(
+                    incident=report.incident,
+                    event="All emergency reports associated with this incident have been resolved. Incident automatically marked RESOLVED.",
+                    actor=request.user,
+                )
+
         _broadcast_incident_update(report.incident)
 
     return Response(ReportSerializer(report).data)
